@@ -1,0 +1,63 @@
+'{$STAMP BS2}
+'{$PBASIC 2.5}
+' skjerm paa pin 0 - 7 og 8 - 15
+' piezo paa venstre desimal
+' disarm og LED paa pin 11
+counter VAR Word
+countertwo VAR Word
+wow VAR Word
+countdown VAR Word
+disarmed VAR Bit
+
+OUTH = %00000000                             ' OUTH initialized to low.
+DIRH = %11110111                             ' Set P8-P15 to all output-low.
+OUTL = %00000000                             ' OUTH initialized to low.
+DIRL = %11111111                             ' Set P8-P15 to all output-low.
+
+nine CON %11110110
+eight CON %11110111
+seven CON %11000100
+six CON %01110111
+five CON %01110110
+four CON %10110100
+three CON %11010110
+two CON %11010011
+one CON %10000100
+zero CON %11100111
+
+countdown = 1000
+
+'PAUSE 10000
+                                             ' Digit:
+'       BAFG.CDE
+FOR counter = 0 TO 9
+    LOOKUP counter, [ nine, eight, seven, six, five, four, three, two, one, zero ], OUTL
+    FOR countertwo = 0 TO 9
+      LOOKUP countertwo, [ nine, eight, seven, six, five, four, three, two, one, zero ], OUTH
+      PAUSE countdown
+      FREQOUT 3, 10, 2000
+      countdown = countdown - 10
+      IF disarmed = 0 THEN
+        IF IN11 = 0 THEN
+          disarmed = 1
+          PAUSE 10000
+          counter = 8
+          countertwo = 9
+          countdown = 500
+        ELSE
+          DIRH = %11111111
+          HIGH 11
+          PAUSE 10
+          LOW 11
+          DIRH = %11110111
+        ENDIF
+      ENDIF
+    NEXT
+NEXT
+FOR wow = 0 TO 10
+  FREQOUT 3, 50, 5000
+  FREQOUT 3, 50, 2000
+NEXT
+DIRH = %00000000                             ' I/O pins to input,
+                                             ' segments off.
+END

@@ -1,0 +1,23 @@
+' {$STAMP BS2}
+' {$PBASIC 2.5}
+
+SenseLeft VAR Word
+SenseRight VAR Word
+
+DO
+  HIGH 10 ' activate sensor
+  HIGH 9 ' discharge QTI cap
+  PAUSE 1
+  RCTIME 9, 1, SenseLeft ' read sensor value
+  LOW 10 ' deactivate sensor
+
+  HIGH 8 ' activate sensor
+  HIGH 7 ' discharge QTI cap
+  PAUSE 1
+  RCTIME 7, 1, SenseRight ' read sensor value
+  LOW 8 ' deactivate sensor
+
+  PULSOUT 12, 750 - ( ( SenseLeft / 30 ) - 40 )
+  PULSOUT 13, 750 + ( ( SenseRight / 30 ) - 40 )
+
+LOOP

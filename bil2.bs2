@@ -1,0 +1,60 @@
+' {$STAMP BS2}
+' {$PBASIC 2.5}
+
+SenseLeft VAR Word
+SenseRight VAR Word
+counter VAR Word
+distance VAR Word
+
+div CON 11
+lAdj CON 30
+rAdj CON 30
+
+Ping CON 8
+leftSensPwr CON 6
+leftSensMeas CON 5
+
+rightSensPwr CON 10
+rightSensMea CON 9
+
+rightServo CON 13
+leftServo CON 12
+
+DO
+  HIGH rightSensPwr
+  HIGH rightSensMeas
+  PAUSE 1
+  RCTIME rightSensMeas, 1, SenseRight
+  LOW rightSensPwr
+
+  HIGH leftSensPwr
+  HIGH leftSensMeas
+  PAUSE 1
+  RCTIME leftSensMeas, 1, SenseLeft
+  LOW leftSensPwr
+
+  IF counter > (distance / 200) AND counter > 10 THEN
+    counter = 0
+    GOSUB sonar
+  ELSE
+    counter = counter + 1
+  ENDIF
+
+  IF distance< 300 THEN
+    PULSOUT leftServo, 800 + ( ( SenseLeft / div ) - lAdj )
+    PULSOUT rightServo, 700 - ( ( SenseRight / div ) - rAdj )
+  ELSEIF distance < 800  THEN
+    PULSOUT leftServo, 750
+    PULSOUT rightServo, 750
+  ELSE
+    PULSOUT leftServo, 800 - ( ( SenseLeft / div ) + lAdj )
+    PULSOUT rightServo, 700 + ( ( SenseRight / div ) + rAdj )
+  ENDIF
+
+LOOP
+
+sonar:
+  LOW Ping
+  PULSOUT Ping, 5
+  PULSIN  Ping, 1, distance
+  RETURN
