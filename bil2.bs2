@@ -1,59 +1,59 @@
 ' {$STAMP BS2}
 ' {$PBASIC 2.5}
 
-SenseLeft VAR Word
+SenseLeft VAR Word      'declare some variables'
 SenseRight VAR Word
 counter VAR Word
 distance VAR Word
 
-div CON 11
+div CON 11              'declare some math constants'
 lAdj CON 30
 rAdj CON 30
 
 Ping CON 8
-leftSensPwr CON 6
+leftSensPwr CON 6       'declare sensor constants'
 leftSensMeas CON 5
 
 rightSensPwr CON 10
-rightSensMea CON 9
+rightSensMeas CON 9
 
 rightServo CON 13
 leftServo CON 12
 
 DO
-  HIGH rightSensPwr
-  HIGH rightSensMeas
-  PAUSE 1
-  RCTIME rightSensMeas, 1, SenseRight
-  LOW rightSensPwr
+  HIGH rightSensPwr                                     'enable right sensor'
+  HIGH rightSensMeas                                    'charge up the capacitor'
+  PAUSE 1                                               'elevator music'
+  RCTIME rightSensMeas, 1, SenseRight                   'use rctime to figure out the resistance of the sensor'
+  LOW rightSensPwr                                      'disable right sensor'
 
-  HIGH leftSensPwr
+  HIGH leftSensPwr                                      'read left sensor, read above'
   HIGH leftSensMeas
   PAUSE 1
   RCTIME leftSensMeas, 1, SenseLeft
   LOW leftSensPwr
 
-  IF counter > (distance / 200) AND counter > 10 THEN
+  IF counter > (distance / 200) AND counter > 10 THEN   'if the loop has looped more than this, reset counter and ping sonar. this is done so the sonar doesn't interfere as much with giving the servo a consistent PWM'
     counter = 0
     GOSUB sonar
   ELSE
-    counter = counter + 1
+    counter = counter + 1                               'else increase counter'
   ENDIF
 
-  IF distance< 300 THEN
+  IF distance< 300 THEN                                       'if the distance on the sonar is less than 300, reverse bot'
     PULSOUT leftServo, 800 + ( ( SenseLeft / div ) - lAdj )
     PULSOUT rightServo, 700 - ( ( SenseRight / div ) - rAdj )
-  ELSEIF distance < 800  THEN
+  ELSEIF distance < 800  THEN                                 'if the distance is less than 800, halt bot'
     PULSOUT leftServo, 750
     PULSOUT rightServo, 750
-  ELSE
+  ELSEIF                                                      'if those conditions are not met, continue forward as normal'
     PULSOUT leftServo, 800 - ( ( SenseLeft / div ) + lAdj )
     PULSOUT rightServo, 700 + ( ( SenseRight / div ) + rAdj )
   ENDIF
 
-LOOP
+LOOP        'go to start and collect $200'
 
-sonar:
+sonar:      'sonar subroutine, because we want to be fancy'
   LOW Ping
   PULSOUT Ping, 5
   PULSIN  Ping, 1, distance
